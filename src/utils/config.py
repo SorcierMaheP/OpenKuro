@@ -29,7 +29,7 @@ class Config(BaseModel):
 
     # After validators run after the whole model has been validated.
     @model_validator(mode="after")
-    def resolve_paths(self) -> Self:
+    def resolve_paths(self) -> "Config":
         for field_name in ("agents_path",):
             path = getattr(self, field_name)
             if not path.is_absolute():
@@ -38,7 +38,7 @@ class Config(BaseModel):
 
     # Loads config from directory
     @classmethod
-    def load(cls, workspace_dir: Path) -> Self:
+    def load(cls, workspace_dir: Path) -> "Config":
         config_data = cls._load_config(workspace_dir)
         config_data["workspace"] = workspace_dir
         return cls.model_validate(config_data)
