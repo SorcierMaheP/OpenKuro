@@ -1,6 +1,6 @@
 # Utils package
 
-from utils.def_loader import (
+from .def_loader import (
     DefNotFoundError,
     InvalidDefError,
     discover_definition,
