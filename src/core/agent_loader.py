@@ -2,8 +2,8 @@
 from typing import Any
 from pydantic import BaseModel, ValidationError
 
-from utils.config import LLMConfig, Config
-from utils.def_loader import DefNotFoundError, InvalidDefError, parse_definition
+from src.utils.config import LLMConfig, Config
+from src.utils.def_loader import DefNotFoundError, InvalidDefError, parse_definition
 
 
 # Loaded agent definition schema with merged settings

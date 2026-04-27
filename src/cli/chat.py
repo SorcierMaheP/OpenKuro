@@ -7,9 +7,9 @@ from rich.panel import Panel
 from rich.prompt import Prompt
 from rich.text import Text
 
-from core.agent import Agent
-from core.agent_loader import AgentLoader
-from utils.config import Config
+from src.core.agent import Agent
+from src.core.agent_loader import AgentLoader
+from src.utils.config import Config
 
 
 # Class for interactive chat session

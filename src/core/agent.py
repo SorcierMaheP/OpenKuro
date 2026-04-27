@@ -6,12 +6,12 @@ from typing import TYPE_CHECKING
 
 from litellm.types.completion import ChatCompletionMessageParam as Message
 
-from provider.llm import LLMProvider
-from core.session_state import SessionState
+from src.provider.llm import LLMProvider
+from src.core.session_state import SessionState
 
 if TYPE_CHECKING:
-    from core.agent_loader import AgentDef
-    from utils.config import Config
+    from src.core.agent_loader import AgentDef
+    from src.utils.config import Config
 
 
 # Agent class that creates and manages conversation sessions

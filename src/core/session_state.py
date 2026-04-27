@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from litellm.types.completion import ChatCompletionMessageParam as Message
 
 if TYPE_CHECKING:
-    from core.agent import Agent
+    from src.core.agent import Agent
 
 
 # Container class to store the state of the chat session

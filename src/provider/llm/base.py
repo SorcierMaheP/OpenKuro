@@ -6,7 +6,7 @@ from litellm import acompletion, Choices, TYPE_CHECKING
 from litellm.types.completion import ChatCompletionMessageParam as Message
 
 if TYPE_CHECKING:
-    from utils.config import LLMConfig
+    from src.utils.config import LLMConfig
 
 
 class LLMProvider:
