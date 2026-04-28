@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)  # Logger based on current file name
 # Def folder/file does not exist
 class DefNotFoundError(Exception):
     def __init__(self, kind: str, def_id: str):
-        super().__init__(f"{kind.capitalize()} not found: {def_id}!")
+        super().__init__(f"{kind.capitalize()} not found: {def_id}")
         self.kind = kind
         self.def_id = def_id
 
@@ -20,7 +20,7 @@ class DefNotFoundError(Exception):
 # Def file has problems
 class InvalidDefError(Exception):
     def __init__(self, kind: str, def_id: str, reason: str):
-        super().__init__(f"Invalid {kind} due to {reason}: {def_id}!")
+        super().__init__(f"Invalid {kind} due to {reason}: {def_id}")
         self.kind = kind
         self.def_id = def_id
         self.reason = reason
@@ -60,7 +60,7 @@ def discover_definition(
     parse_func: Callable[[str, dict[str, Any], str], T | None],
 ) -> list[T]:
     if not path.exists():
-        logger.warning(f"Definitions folder not found at {path}!")
+        logger.warning(f"Definitions folder not found at {path}")
         return []
 
     results = []
@@ -70,7 +70,7 @@ def discover_definition(
 
         def_file = def_dir / filename
         if not def_file.exists():
-            logger.warning(f"No {filename} found in {def_dir.name}!")
+            logger.warning(f"No {filename} found in {def_dir.name}")
             continue
 
         try:
@@ -79,7 +79,7 @@ def discover_definition(
             if result is not None:
                 results.append(result)
         except Exception as e:
-            logger.warning(f"Failed to parse {def_dir.name} due to {e}!")
+            logger.warning(f"Failed to parse {def_dir.name} due to {e}")
             continue
 
     return results

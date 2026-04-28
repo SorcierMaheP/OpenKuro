@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 class LLMProvider:
     def __init__(
         self,
+        provider: str,
         model: str,
         api_key: str,
         api_base: Optional[str] = None,
@@ -19,6 +20,7 @@ class LLMProvider:
         max_tokens: int = 2048,
         **kwargs: Any,
     ):
+        self.provider = provider
         self.model = model
         self.api_key = api_key
         self.api_base = api_base
@@ -30,6 +32,7 @@ class LLMProvider:
     @classmethod
     def from_config(cls, config: "LLMConfig") -> "LLMProvider":
         return cls(
+            provider=config.provider,
             model=config.model,
             api_key=config.api_key,
             api_base=config.api_base,
