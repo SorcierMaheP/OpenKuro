@@ -25,11 +25,6 @@ cp default_workspace/config.example.yaml default_workspace/config.user.yaml
 ```bash
 python -m src.cli.main chat
 ```
-# Baseline commits
-
-This section links to specific baseline commits in the repository. Each commit represents a distinct stage in the development of the bot.
-
-0. [Step 00 - Chat Loop](https://github.com/SorcierMaheP/OpenKuro/commit/fc6c38ffa267a1183ff739d84c4874b43a15fd42)
 
 # Media
 
