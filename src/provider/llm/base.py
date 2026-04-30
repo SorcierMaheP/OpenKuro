@@ -1,5 +1,6 @@
 # LLM Provider settings with litellm
 
+from dataclasses import dataclass
 from typing import Any, Optional, cast
 
 from litellm import acompletion, Choices, TYPE_CHECKING
@@ -7,6 +8,14 @@ from litellm.types.completion import ChatCompletionMessageParam as Message
 
 if TYPE_CHECKING:
     from src.utils.config import LLMConfig
+
+
+# Define a schema class for LLM Tool Call
+@dataclass
+class LLMToolCall:
+    id: str
+    name: str
+    arguments: str  # This will be a JSON string
 
 
 class LLMProvider:
@@ -41,7 +50,13 @@ class LLMProvider:
         )
 
     # Async func to call LLM with messages
-    async def chat(self, messages: list[Message], **kwargs: Any) -> str:
+    # Pass a list of tool definitions as well
+    async def chat(
+        self,
+        messages: list[Message],
+        tools: Optional[list[dict[str, Any]]] = None,
+        **kwargs: Any,
+    ) -> tuple[str, list[LLMToolCall]]:
         request_kwargs: dict[str, Any] = {
             "model": self.model,
             "messages": messages,
@@ -51,6 +66,9 @@ class LLMProvider:
         if self.api_base:
             request_kwargs["api_base"] = self.api_base
 
+        if tools:
+            request_kwargs["tools"] = tools
+
         # Add extra kwargs
         request_kwargs.update(kwargs)
 
@@ -59,4 +77,15 @@ class LLMProvider:
             Choices, response.choices[0]
         ).message  # Select the first choice from multiple possible completions
 
-        return message.content or ""
+        # Returns message and list of possible tool calls
+        return (
+            message.content or "",
+            [
+                LLMToolCall(
+                    id=tc["id"],
+                    name=tc["function"]["name"],
+                    arguments=tc["function"]["arguments"],
+                )
+                for tc in (message.tool_calls or [])
+            ],
+        )
