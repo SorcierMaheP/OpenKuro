@@ -28,3 +28,15 @@ class BaseTool(ABC):
                 "parameters": self.parameters,
             },
         }
+
+
+# Create a decorator @tool to register a function as a tool
+# Technically tool function returns the decorator func,
+# hence its return type should be Callable[[Param type of decorator func], Return type of decorator func]
+# which is Callable[[Callable], FunctionTool]
+def tool(name: str, description: str, parameters: dict[str, Any]) -> Callable:
+
+    def decorator(func: Callable) -> "FunctionTool":
+        return FunctionTool(name, description, parameters, func)
+
+    return decorator
