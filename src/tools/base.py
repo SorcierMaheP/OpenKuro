@@ -40,3 +40,23 @@ def tool(name: str, description: str, parameters: dict[str, Any]) -> Callable:
         return FunctionTool(name, description, parameters, func)
 
     return decorator
+
+
+# Wrapper class for tool created using @tool decorator
+def FunctionTool(BaseTool):
+    def __init__(
+        self, name: str, description: str, parameters: dict[str, Any], func: Callable
+    ):
+        self.name = name
+        self.description = description
+        self.parameters = parameters
+        self._func = func
+
+    async def execute(self, session: "AgentSession", **kwargs: Any) -> str:
+        result = self._func(session=session, **kwargs)
+
+        # If func is async, await the result. If func is sync, this step is skipped
+        if asyncio.iscoroutine(result):
+            result = await result
+
+        return str(result)
