@@ -35,3 +35,31 @@ async def read_file(path: str, session: "AgentSession") -> str:
         return f"Error: Specified path is a directory at {path}"
     except Exception as e:
         return f"Error reading file: {e}"
+
+
+@tool(
+    name="write",
+    description="Write text content to a file",
+    parameters={
+        "type": "object",
+        "properties": {
+            "path": {"type": "string", "description": "Path to the file to write"},
+            "content": {
+                "type": "string",
+                "description": "Text content to write to the file",
+            },
+        },
+        "required": ["path", "content"],
+    },
+)
+# Write text to a file and return success status
+async def write_file(path: str, content: str, session: "AgentSession") -> str:
+    try:
+        Path(path).write_text(content)
+        return f"Success writing text to file at {path}"
+    except PermissionError:
+        return f"Error: Permission denied writing to {path}"
+    except IsADirectoryError:
+        return f"Error: Specified path is a directory at {path}"
+    except Exception as e:
+        return f"Error reading file: {e}"
