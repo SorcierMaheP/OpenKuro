@@ -52,7 +52,7 @@ async def read_file(path: str, session: "AgentSession") -> str:
         "required": ["path", "content"],
     },
 )
-# Write text to a file and return success status
+# Write text to a file and return status
 async def write_file(path: str, content: str, session: "AgentSession") -> str:
     try:
         Path(path).write_text(content)
@@ -63,3 +63,45 @@ async def write_file(path: str, content: str, session: "AgentSession") -> str:
         return f"Error: Specified path is a directory at {path}"
     except Exception as e:
         return f"Error reading file: {e}"
+
+
+@tool(
+    name="edit",
+    description="Edit a file by replacing a string",
+    parameters={
+        "type": "object",
+        "properties": {
+            "path": {"type": "string", "description": "Path to the file to write"},
+            "old_text": {
+                "type": "string",
+                "description": "Old text that needs to be replaced",
+            },
+            "new_text": {
+                "type": "string",
+                "description": "Newer text to be replaced with",
+            },
+        },
+        "required": ["path", "old_text", "new_text"],
+    },
+)
+# Replace old text with new text and return status
+async def edit_file(
+    path: str, old_text: str, new_text: str, session: "AgentSession"
+) -> str:
+    try:
+        old_content = Path(path).read_text()
+
+        if old_text not in old_content:
+            return f"Error: '{old_text} not found in {path}"
+
+        new_content = old_content.replace(old_text, new_text)
+        Path(path).write_text(new_content)
+        return f"Successfully edited file at {path}"
+    except FileNotFoundError:
+        return f"Error: File not found at {path}"
+    except PermissionError:
+        return f"Error: Permission denied editing file at {path}"
+    except IsADirectoryError:
+        return f"Error: Specified path is a directory at {path}"
+    except Exception as e:
+        return f"Error editing file: {e}"
