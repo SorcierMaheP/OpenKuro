@@ -105,3 +105,37 @@ async def edit_file(
         return f"Error: Specified path is a directory at {path}"
     except Exception as e:
         return f"Error editing file: {e}"
+
+
+# Tool to run shell commands
+@tool(
+    name="bash",
+    description="Runs a bash shell command",
+    parameters={
+        "type": "object",
+        "properties": {
+            "command": {"type": "string", "description": "Name of command to execute"}
+        },
+        "required": ["command"],
+    },
+)
+# Run a bash command and return the output
+async def bash(command: str, session: "AgentSession") -> str:
+    try:
+        # Spawns a new shell with specified command
+        # stdout and stderr are pipes so that python can capture them
+        process = await asyncio.create_subprocess_shell(
+            cmd=command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = (
+            await process.communicate()
+        )  # Result is in bytes hence need to decode
+
+        output = stdout.decode() if stdout else ""
+        error = stderr.decode() if stderr else ""
+
+        if output and error:
+            return f"{output}\n{error}"
+        return output or error or "Command completed with no output or error"
+    except Exception as e:
+        return f"Error executing command: {e}"
