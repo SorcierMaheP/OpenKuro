@@ -1,12 +1,18 @@
-# Core agent and agent session code
+# Core agent and agent session code, with tool support
+import asyncio
+import json
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from litellm.types.completion import ChatCompletionMessageParam as Message
+from litellm.types.completion import (
+    ChatCompletionMessageParam as Message,
+    ChatCompletionMessageToolCallParam,
+)
 
-from src.provider.llm import LLMProvider
+from src.provider.llm import LLMProvider, LLMToolCall
+from src.tools.registry import ToolRegistry
 from src.core.session_state import SessionState
 
 if TYPE_CHECKING:
@@ -24,7 +30,10 @@ class Agent:
     def new_session(self, session_id: str | None = None) -> "AgentSession":
         session_id = session_id or str(uuid.uuid4())
         state = SessionState(session_id=session_id, agent=self, messages=[])
-        session = AgentSession(agent=self, state=state)
+
+        # Create tool registry with builtin tools and pass it to AgentSession
+        tools = ToolRegistry.with_builtins()
+        session = AgentSession(agent=self, state=state, tools=tools)
         return session
 
 
