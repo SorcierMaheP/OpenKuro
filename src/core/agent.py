@@ -42,6 +42,7 @@ class Agent:
 class AgentSession:
     agent: Agent
     state: SessionState
+    tools: ToolRegistry
     started_at: datetime = field(default_factory=datetime.now)
 
     @property
@@ -53,10 +54,31 @@ class AgentSession:
         user_msg: Message = {"role": "user", "content": message}
         self.state.add_message(user_msg)
 
-        messages = self.state.build_messages()
-        response = await self.agent.llm.chat(messages)
+        tool_schemas = self.tools.get_tool_schemas()
 
-        assistant_msg: Message = {"role": "assistant", "content": response}
-        self.state.add_message(assistant_msg)
+        # Process in infinite loop till no more tool calls are left
+        while True:
+            messages = self.state.build_messages()
+            content, tool_calls = await self.agent.llm.chat(messages, tool_schemas)
 
-        return response
+            # OpenAI schema for tool calls
+            tool_call_dicts: list[ChatCompletionMessageToolCallParam] = [
+                {
+                    "id": tc.id,
+                    "type": "function",
+                    "function": {"name": tc.name, "arguments": tc.arguments},
+                }
+                for tc in tool_calls
+            ]
+
+            assistant_msg: Message = {"role": "assistant", "content": content}
+            if tool_call_dicts:
+                assistant_msg["tool_calls"] = tool_call_dicts
+            self.state.add_message(assistant_msg)
+
+            if not tool_calls:
+                break
+
+            await self._handle_tool_calls(tool_calls)
+
+        return content
