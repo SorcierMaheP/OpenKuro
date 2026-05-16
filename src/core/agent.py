@@ -82,3 +82,7 @@ class AgentSession:
             await self._handle_tool_calls(tool_calls)
 
         return content
+
+    # Function to handle tool calls from LLM response
+    async def _handle_tool_calls(self, tool_calls: list["LLMToolCall"]) -> None:
+        pass
