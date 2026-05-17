@@ -85,4 +85,35 @@ class AgentSession:
 
     # Function to handle tool calls from LLM response
     async def _handle_tool_calls(self, tool_calls: list["LLMToolCall"]) -> None:
-        pass
+        # Run _execute_tool_call concurrently
+        # asyncio gather expects all coroutines to be separate arguments, hence we are unpacking list with *
+        tool_call_results = await asyncio.gather(
+            *[self._execute_tool_call(tool_call) for tool_call in tool_calls]
+        )
+
+        for tool_call, result in zip(tool_calls, tool_call_results):
+            # Build a message for tool call and corresponding result
+            # Also save it in the state
+            tool_msg: Message = {
+                "role": "tool",
+                "content": result,
+                "tool_call_id": tool_call.id,
+            }
+            self.state.add_message(tool_msg)
+
+    # Function to execute a single tool call
+    # Return type is str, check builtin tool function code
+    async def _execute_tool_call(self, tool_call: LLMToolCall) -> str:
+        try:
+            args = json.loads(tool_call.arguments)
+        except json.JSONDecodeError:
+            args = {}
+
+        try:
+            result = await self.tools.execute_tool(
+                name=tool_call.name, session=self, **args
+            )
+        except Exception as e:
+            result = f"Error executing tool: {e}"
+
+        return result
